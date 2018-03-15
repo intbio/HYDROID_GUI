@@ -15,6 +15,9 @@
 import sys, os
 import pandas as pd
 from PyQt5 import QtGui, QtCore, QtWidgets
+import matplotlib.pyplot as plt
+import numpy as np
+from time import sleep
 
 class LaneMenu(QtWidgets.QWidget):
     '''
@@ -26,6 +29,7 @@ class LaneMenu(QtWidgets.QWidget):
         self.parent=parent
         self.filters="Excel files (*.xls)"
         self.laneList=[]
+        self.widgetWithActiveThread=None
 
         self.foldersScrollArea = QtWidgets.QScrollArea(self)
         self.foldersScrollArea.setWidgetResizable(True)
@@ -80,8 +84,20 @@ class LaneMenu(QtWidgets.QWidget):
             profdf=pd.read_csv(filename[0],delimiter="\t",engine='python')
             for label in list(profdf.columns.values)[1::2]:
                 self.laneList.append(singleLaneWidget(label))
+                self.laneList[-1].killAllThreadsSignal.connect(self.runSingleWidgetThread)
                 self.folderLayout.addWidget(self.laneList[-1])
     
+    def runSingleWidgetThread(self,lanewidget):
+        if self.widgetWithActiveThread == None:
+            lanewidget.startThread()
+        else:
+            self.widgetWithActiveThread.stopThread() 
+            self.widgetWithActiveThread=lanewidget
+            sleep(0.5)
+            self.widgetWithActiveThread.startThread() 
+            
+            
+                
     def removeAll(self):
         for i in reversed(range(len(self.laneList))):
                 self.laneList[i].setParent(None) 
@@ -90,7 +106,7 @@ class LaneMenu(QtWidgets.QWidget):
 
 
 class singleLaneWidget(QtWidgets.QWidget):
-
+    killAllThreadsSignal = QtCore.pyqtSignal(QtWidgets.QWidget)
     def __init__(self,label,name=None):
         super(singleLaneWidget, self).__init__()
         self.label=label
@@ -110,7 +126,7 @@ class singleLaneWidget(QtWidgets.QWidget):
         #self.r_button.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.r_button.setFixedWidth(50)
         self.r_button.setStyleSheet("text-align: left;padding: 3px")    
-        self.r_button.clicked.connect(self.sendUpdateSignal)
+        self.r_button.clicked.connect(self.checkOtherThreads)
         
         self.laneNameWidget=QtWidgets.QLineEdit(self.label)
         
@@ -128,12 +144,53 @@ class singleLaneWidget(QtWidgets.QWidget):
         self.Layout.addWidget(self.laneNameWidget,0,1)
         self.Layout.addWidget(self.strandCB,0,2)
         self.Layout.addWidget(self.refLaneCheckBox,0,3)
+        self.thread=display_thread()
         
-
+        
+        
+    def stopThread(self):
+        print self.label
+        #self.thread.stop()
+        if hasattr(self, 'thread'):
+            if self.thread.isRunning:
+                self.thread.close()
+                self.thread.quit()
+                self.thread.wait()
     
-    def sendUpdateSignal(self):
-        print self.laneNameWidget.text()
-        #self.emit(QtCore.SIGNAL("updateFilePreview"),self.data,self.path)
+    def checkOtherThreads(self):
+        self.killAllThreadsSignal.emit(self)
+
+    def startThread(self):
+    #    #THAT IS HORRIBLE, we need
+        sleep(0.1)
+        self.thread.start()
+                
+
+
+class display_thread(QtCore.QThread):
+
+    def __init__(self):
+        QtCore.QThread.__init__(self)
+
+    def __del__(self):
+        self.wait()
+    def close(self):
+        plt.close()
+        
+    def run(self):
+        
+        t = np.arange(0.0, 2.0, 0.01)
+        s1 = np.sin(2*np.pi*t)
+        s2 = np.sin(4*np.pi*t)
+
+        plt.figure(1)
+        plt.subplot(211)
+        plt.plot(t, s1)
+        plt.subplot(212)
+        plt.plot(t, 2*s1)
+
+        plt.show()
+        # your logic here
         
 def main():
     

@@ -35,7 +35,7 @@ class StateWidget(QWidget):
                 qp.setBrush(QColor(255, 255, 255))
             else:
                 qp.setBrush(QColor(150, 150, 150))
-            rect = QRect(10+i*110, 10, 100, 30)
+            rect = QRect(5+i*120, 10, 110, 30)
             qp.drawRect(rect)
             qp.drawText(rect, Qt.AlignCenter, state)
             
