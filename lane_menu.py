@@ -88,13 +88,10 @@ class LaneMenu(QtWidgets.QWidget):
                 self.folderLayout.addWidget(self.laneList[-1])
     
     def runSingleWidgetThread(self,lanewidget):
-        if self.widgetWithActiveThread == None:
-            lanewidget.startThread()
-        else:
+        if self.widgetWithActiveThread != None:
             self.widgetWithActiveThread.stopThread() 
-            self.widgetWithActiveThread=lanewidget
-            sleep(0.5)
-            self.widgetWithActiveThread.startThread() 
+        self.widgetWithActiveThread=lanewidget
+        self.widgetWithActiveThread.startThread() 
             
             
                 
