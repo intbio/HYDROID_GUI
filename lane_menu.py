@@ -18,6 +18,9 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 import matplotlib.pyplot as plt
 import numpy as np
 from time import sleep
+from hydroid.HYDROIDexp import assign_peaks_interactive
+from hydroid_wraper import hydroidConfig,PlotProcess
+
 
 class LaneMenu(QtWidgets.QWidget):
     '''
@@ -28,7 +31,7 @@ class LaneMenu(QtWidgets.QWidget):
         self.setAcceptDrops(True)
         self.parent=parent
         self.filters="Excel files (*.xls)"
-        self.laneList=[]
+        self.laneWidgetList=[]
         self.widgetWithActiveThread=None
 
         self.foldersScrollArea = QtWidgets.QScrollArea(self)
@@ -74,39 +77,50 @@ class LaneMenu(QtWidgets.QWidget):
         self.setGeometry(300, 200, 300, 400)
     
     def openFile(self):
-        #VERRY CRUDE MUST FIX
-        
         filename=QtWidgets.QFileDialog.getOpenFileName(self,'Open Lane profiles',filter=self.filters)
         # returns tupple like ('name', 'filter')
         # that means that filename string is not empty as '' == False in boolean conversion
         if filename[0]:
             self.removeAll()
             profdf=pd.read_csv(filename[0],delimiter="\t",engine='python')
-            for label in list(profdf.columns.values)[1::2]:
-                self.laneList.append(singleLaneWidget(label))
-                self.laneList[-1].killAllThreadsSignal.connect(self.runSingleWidgetThread)
-                self.folderLayout.addWidget(self.laneList[-1])
+            #VERRY CRUDE MUST FIX
+            laneLabels=list(profdf.columns.values)[1::2]
+            #!!!!!!!!!!!!!!!!!!!!
+            self.config=hydroidConfig(laneLabels)
+            for label in laneLabels:
+                self.laneWidgetList.append(singleLaneWidget(label,filename[0],self.config.configFile))
+                #self.laneWidgetList[-1].killAllThreadsSignal.connect(self.runSingleWidget)
+                self.folderLayout.addWidget(self.laneWidgetList[-1])
     
-    def runSingleWidgetThread(self,lanewidget):
+    def runSingleWidget(self,lanewidget):
         if self.widgetWithActiveThread != None:
             self.widgetWithActiveThread.stopThread() 
         self.widgetWithActiveThread=lanewidget
         self.widgetWithActiveThread.startThread() 
             
-            
                 
     def removeAll(self):
-        for i in reversed(range(len(self.laneList))):
-                self.laneList[i].setParent(None) 
-                self.laneList.pop(i)
+        for i in reversed(range(len(self.laneWidgetList))):
+                self.laneWidgetList[i].setParent(None) 
+                self.laneWidgetList.pop(i)
+                
+    def closeEvent(self, event):
+        print("Running cleanup...")
+        if hasattr(self, 'config'):
+            os.remove(self.config.configFile)
+
  
 
 
 class singleLaneWidget(QtWidgets.QWidget):
     killAllThreadsSignal = QtCore.pyqtSignal(QtWidgets.QWidget)
-    def __init__(self,label,name=None):
+    def __init__(self,label,lane_profile_file,lane_config_file,name=None):
         super(singleLaneWidget, self).__init__()
         self.label=label
+        self.lane_profile_file=lane_profile_file
+        self.lane_config_file=lane_config_file
+        self.workingProcess=None
+        
         if name is not None:
             self.name=name
         else:
@@ -123,7 +137,7 @@ class singleLaneWidget(QtWidgets.QWidget):
         #self.r_button.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.r_button.setFixedWidth(50)
         self.r_button.setStyleSheet("text-align: left;padding: 3px")    
-        self.r_button.clicked.connect(self.checkOtherThreads)
+        self.r_button.clicked.connect(self.runTask)
         
         self.laneNameWidget=QtWidgets.QLineEdit(self.label)
         
@@ -141,53 +155,17 @@ class singleLaneWidget(QtWidgets.QWidget):
         self.Layout.addWidget(self.laneNameWidget,0,1)
         self.Layout.addWidget(self.strandCB,0,2)
         self.Layout.addWidget(self.refLaneCheckBox,0,3)
-        self.thread=display_thread()
         
-        
-        
-    def stopThread(self):
-        print self.label
-        #self.thread.stop()
-        if hasattr(self, 'thread'):
-            if self.thread.isRunning:
-                self.thread.close()
-                self.thread.quit()
-                self.thread.wait()
     
-    def checkOtherThreads(self):
-        self.killAllThreadsSignal.emit(self)
-
-    def startThread(self):
-    #    #THAT IS HORRIBLE, we need
-        sleep(0.1)
-        self.thread.start()
-                
+    def runTask(self):
+        if self.workingProcess!=None:
+            self.workingProcess.plot_process.terminate()
+        self.workingProcess=PlotProcess(FUNC='assign_peaks_interactive',lane_profile_file=self.lane_profile_file,
+                            lane_config_file=self.lane_config_file,
+                            lane_name=self.name)
 
 
-class display_thread(QtCore.QThread):
 
-    def __init__(self):
-        QtCore.QThread.__init__(self)
-
-    def __del__(self):
-        self.wait()
-    def close(self):
-        plt.close()
-        
-    def run(self):
-        
-        t = np.arange(0.0, 2.0, 0.01)
-        s1 = np.sin(2*np.pi*t)
-        s2 = np.sin(4*np.pi*t)
-
-        plt.figure(1)
-        plt.subplot(211)
-        plt.plot(t, s1)
-        plt.subplot(212)
-        plt.plot(t, 2*s1)
-
-        plt.show()
-        # your logic here
         
 def main():
     

@@ -139,6 +139,11 @@ class MainWindow(QtWidgets.QMainWindow):
     def next(self):
         self.toggleState('next')
         
+    def closeEvent(self, event):
+        print("Running cleanup...")
+        if hasattr(self.laneMenu, 'config'):
+            os.remove(self.laneMenu.config.configFile)
+        
 '''      
     def assignConnections(self):
         self.connect(self.laneMenu,QtCore.SIGNAL("updateFilePreview"),self.set_data)
