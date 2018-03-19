@@ -92,7 +92,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #self.canvas = FigureCanvas(self.figure)
         plotWidgetLayout.addWidget(QtWidgets.QWidget(self))
         
-        toolbarWidget=QtWidgets.QWidget(self)
+        #toolbarWidget=QtWidgets.QWidget(self)
         toolbarWidgetLayout=QtWidgets.QHBoxLayout(toolbarWidget)
         #self.toolbar = NavigationToolbar(self.canvas, self)
         #toolbarWidgetLayout.addWidget(self.toolbar)

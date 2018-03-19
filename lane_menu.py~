@@ -17,7 +17,7 @@ import pandas as pd
 from PyQt5 import QtGui, QtCore, QtWidgets
 import matplotlib
 matplotlib.use('TkAgg')
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import numpy as np
 from time import sleep
 from hydroid.HYDROIDexp import assign_peaks_interactive
