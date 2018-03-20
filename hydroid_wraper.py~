@@ -1,6 +1,4 @@
 from multiprocessing import Process
-import matplotlib
-matplotlib.use('TkAgg')
 from hydroid.HYDROIDexp import assign_peaks_interactive
 import tempfile,os
 

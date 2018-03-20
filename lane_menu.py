@@ -53,19 +53,22 @@ class LaneMenu(QtWidgets.QWidget):
         headerWidgetLayout.setContentsMargins(0,0,0,0)
         headerWidgetLayout.setAlignment(QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         
-        hlabel=QtWidgets.QLabel('Label')
+        hlabel=QtWidgets.QLabel('Column')
         hlabel.setFixedWidth(50)
         hname=QtWidgets.QLabel('Name')
         hname.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         hstrand=QtWidgets.QLabel('Strand')
         hstrand.setFixedWidth(50)
+        labeledEnd=QtWidgets.QLabel('Label')
+        labeledEnd.setFixedWidth(50)
         href=QtWidgets.QLabel('Ref.')
         href.setFixedWidth(50)
         
         headerWidgetLayout.addWidget(hlabel,0,0)
         headerWidgetLayout.addWidget(hname,0,1)
         headerWidgetLayout.addWidget(hstrand,0,2)
-        headerWidgetLayout.addWidget(href,0,3)
+        headerWidgetLayout.addWidget(labeledEnd,0,3)
+        headerWidgetLayout.addWidget(href,0,4)
         
         self.folderLayout.addWidget(headerWidget)
         
@@ -76,7 +79,7 @@ class LaneMenu(QtWidgets.QWidget):
         self.mainLayout = QtWidgets.QVBoxLayout(self)
         self.mainLayout.addWidget(openFiles)
         self.mainLayout.addWidget(self.foldersScrollArea)
-        self.setMaximumWidth(300)
+        self.setMaximumWidth(350)
         self.setGeometry(300, 200, 300, 400)
     
     def openFile(self):
@@ -91,7 +94,7 @@ class LaneMenu(QtWidgets.QWidget):
             #!!!!!!!!!!!!!!!!!!!!
             self.config=hydroidConfig(laneLabels)
             for label in laneLabels:
-                self.laneWidgetList.append(singleLaneWidget(label,filename[0],self.config.configFile))
+                self.laneWidgetList.append(singleLaneWidget(label,filename[0],self.config.configFile,mainwindow=self.parent))
                 #self.laneWidgetList[-1].killAllThreadsSignal.connect(self.runSingleWidget)
                 self.folderLayout.addWidget(self.laneWidgetList[-1])
     
@@ -117,8 +120,9 @@ class LaneMenu(QtWidgets.QWidget):
 
 class singleLaneWidget(QtWidgets.QWidget):
     killAllThreadsSignal = QtCore.pyqtSignal(QtWidgets.QWidget)
-    def __init__(self,label,lane_profile_file,lane_config_file,name=None):
+    def __init__(self,label,lane_profile_file,lane_config_file,name=None,mainwindow=None):
         super(singleLaneWidget, self).__init__()
+        self.mainwindow=mainwindow
         self.label=label
         self.lane_profile_file=lane_profile_file
         self.lane_config_file=lane_config_file
@@ -147,6 +151,10 @@ class singleLaneWidget(QtWidgets.QWidget):
         self.strandCB=QtWidgets.QComboBox()
         self.strandCB.addItems(["TS", "BS"])
         self.strandCB.setFixedWidth(50)
+        
+        self.labeledEnd=QtWidgets.QComboBox()
+        self.labeledEnd.addItems(["3`", "5`"])
+        self.labeledEnd.setFixedWidth(50)
 
         self.refLaneCheckBox = QtWidgets.QCheckBox(self)
         self.refLaneCheckBox.setTristate(False)
@@ -157,18 +165,39 @@ class singleLaneWidget(QtWidgets.QWidget):
         self.Layout.addWidget(self.r_button,0,0)
         self.Layout.addWidget(self.laneNameWidget,0,1)
         self.Layout.addWidget(self.strandCB,0,2)
-        self.Layout.addWidget(self.refLaneCheckBox,0,3)
+        self.Layout.addWidget(self.labeledEnd,0,3)
+        self.Layout.addWidget(self.refLaneCheckBox,0,4)
         
     
     def runTask(self):
+        print self.mainwindow.states[self.mainwindow.currentState]
         if self.workingProcess!=None:
             self.workingProcess.plot_process.terminate()
-        self.workingProcess=PlotProcess(FUNC='assign_peaks_interactive',lane_profile_file=self.lane_profile_file,
-                            lane_config_file=self.lane_config_file,
-                            lane_name=self.name)
+        if self.mainwindow.currentState==0:
+            self.workingProcess=PlotProcess(FUNC='assign_peaks_interactive',lane_profile_file=self.lane_profile_file,
+                                lane_config_file=self.lane_config_file,
+                                lane_name=self.name)
+        elif self.mainwindow.currentState==1:
+            self.workingProcess=PlotProcess(FUNC='call_peaks_interactive',lane_profile_file=self.lane_profile_file,
+                                lane_config_file=self.lane_config_file,
+                                lane_name=self.name,DNAseq=s['seq'],
+                                labeled_end=s['label'], helper_prof_names=s['helper_profiles'])
 
 
+'''
+from Bio import SeqIO
 
+lane_profile_file="data/lane_profiles.xls"
+lane_config_file="data/lane_config.csv"
+#Read DNA seqeunce from file via biopython
+TS_seq=SeqIO.parse(open("data/DNA_seq.fasta"),'fasta').next().seq
+BS_seq=TS_seq.reverse_complement()
+lane_sets=[
+{'footprinting_profile':'scCSE4_601TA_BS','helper_profiles':['GA_601TA_BS','CT_601TA_BS'],'seq':BS_seq,'label':'three_prime'},
+{'footprinting_profile':'scCSE4_601TA_TS','helper_profiles':['GA_601TA_TS','CT_601TA_TS'],'seq':TS_seq,'label':'three_prime'}
+]
+call_peaks_interactive(lane_profile_file,lane_config_file,DNAseq=s['seq'],labeled_end=s['label'],lane_name=s['footprinting_profile'],helper_prof_names=s['helper_profiles'])
+'''
         
 def main():
     

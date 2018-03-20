@@ -61,18 +61,18 @@ class MainWindow(QtWidgets.QMainWindow):
         --------------------------------
         | mainWidget                   |
         | ---------- ----------------- |
-        | |laneMenu| |plotWidget     | |
+        | |laneMenu| |fasta widget   | |
         | |        | |---------------| |
         | |        | ||stateWidget  || |
         | |        | ||canvas       || |
-        | |        | ||toolbarWidget|| |
+        | |        | ||buttonWidget|| |
         | ---------- ----------------- |
         --------------------------------
         
         '''
         mainWidget = QtWidgets.QSplitter(QtCore.Qt.Horizontal)
         
-        self.laneMenu=LaneMenu(self.workDir)
+        self.laneMenu=LaneMenu(self.workDir,parent=self)
 
         mainWidget.addWidget(self.laneMenu)
         plotAndControlsWidget=QtWidgets.QWidget(self)
@@ -81,33 +81,43 @@ class MainWindow(QtWidgets.QMainWindow):
         
         highlightColor = str('white')#tabs.palette().color(QtWidgets.QPalette.HighlightedText).name())
        
-        plotWidget=QtWidgets.QWidget(self)
-        plotWidgetLayout=QtWidgets.QVBoxLayout(plotWidget)
+        controlWidget=QtWidgets.QWidget(self)
+        controlWidgetLayout=QtWidgets.QVBoxLayout(controlWidget)
         
         self.stateWidget=StateWidget(self.states,self.currentState)
         self.stateWidget.setFixedSize(600,50)
-        plotWidgetLayout.addWidget(self.stateWidget)
+        controlWidgetLayout.addWidget(self.stateWidget)
         
-        #self.figure = plt.figure(facecolor=highlightColor)
-        #self.canvas = FigureCanvas(self.figure)
-        plotWidgetLayout.addWidget(QtWidgets.QWidget(self))
+        fastaControlWidget=QtWidgets.QWidget(self)
+        fastaControlWidgetLayout=QtWidgets.QHBoxLayout(fastaControlWidget)
         
-        #toolbarWidget=QtWidgets.QWidget(self)
-        toolbarWidgetLayout=QtWidgets.QHBoxLayout(toolbarWidget)
-        #self.toolbar = NavigationToolbar(self.canvas, self)
-        #toolbarWidgetLayout.addWidget(self.toolbar)
+        fastaTextLabel=QtWidgets.QLabel('Top strand sequence 5` - 3`:')
+        fastaControlWidgetLayout.addWidget(fastaTextLabel)
+        
+        fastaTextLabel=QtWidgets.QPushButton("Open FASTA")
+        fastaTextLabel.clicked.connect(self.openFastaFile)
+        fastaControlWidgetLayout.addWidget(fastaTextLabel)
+        
+        
+        controlWidgetLayout.addWidget(fastaControlWidget)
+        
+        self.fastawidget = QtWidgets.QTextEdit()
+        controlWidgetLayout.addWidget(self.fastawidget)
+        
+        buttonWidget=QtWidgets.QWidget(self)
+        buttonWidgetLayout=QtWidgets.QHBoxLayout(buttonWidget)
         
         self.BackBtn = QtWidgets.QPushButton("Back")
         self.BackBtn.clicked.connect(self.back)     
         self.BackBtn.setEnabled(False)   
-        toolbarWidgetLayout.addWidget(self.BackBtn)
+        buttonWidgetLayout.addWidget(self.BackBtn)
         
         self.NextBtn = QtWidgets.QPushButton("Next")
         self.NextBtn.clicked.connect(self.next)
-        toolbarWidgetLayout.addWidget(self.NextBtn)
-        plotWidgetLayout.addWidget(toolbarWidget)
+        buttonWidgetLayout.addWidget(self.NextBtn)
+        controlWidgetLayout.addWidget(buttonWidget)
         
-        plotAndControlsWidgetLayout.addWidget(plotWidget)
+        plotAndControlsWidgetLayout.addWidget(controlWidget)
         
         mainWidget.addWidget(plotAndControlsWidget)
         self.setCentralWidget(mainWidget)
@@ -115,7 +125,7 @@ class MainWindow(QtWidgets.QMainWindow):
         
         
         #self.assignConnections()
-        
+    
     def toggleState(self,direction):
         self.currentState += 1 if direction=='next' else -1
         self.currentState = 0 if self.currentState<0 else self.currentState
@@ -133,6 +143,15 @@ class MainWindow(QtWidgets.QMainWindow):
         
         # put some meat here
         
+    def openFastaFile(self):
+        filename=QtWidgets.QFileDialog.getOpenFileName(self,'Open FASTA',filter="FASTA files (*.fasta)")
+        if filename[0]:
+            with open(filename, 'r') as myfile:
+                dataString = myfile.read()
+                print dataString
+            self.fastawidget.setPlainText(dataString)
+        
+    
     def back(self):
         self.toggleState('back')
 

@@ -30,7 +30,20 @@ column,	lname,				leftlim,	rightlim,	peakthresh,	min_dist_left,	min_dist_right,	
             for lane in self.laneList:
                 file.write('%s,%s,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN, , \n'%(lane,lane))
 
-        
+'''
+from Bio import SeqIO
+
+lane_profile_file="data/lane_profiles.xls"
+lane_config_file="data/lane_config.csv"
+#Read DNA seqeunce from file via biopython
+TS_seq=SeqIO.parse(open("data/DNA_seq.fasta"),'fasta').next().seq
+BS_seq=TS_seq.reverse_complement()
+lane_sets=[
+{'footprinting_profile':'scCSE4_601TA_BS','helper_profiles':['GA_601TA_BS','CT_601TA_BS'],'seq':BS_seq,'label':'three_prime'},
+{'footprinting_profile':'scCSE4_601TA_TS','helper_profiles':['GA_601TA_TS','CT_601TA_TS'],'seq':TS_seq,'label':'three_prime'}
+]
+call_peaks_interactive(lane_profile_file,lane_config_file,DNAseq=s['seq'],labeled_end=s['label'],lane_name=s['footprinting_profile'],helper_prof_names=s['helper_profiles'])
+'''        
         
         
 class PlotProcess(object):
