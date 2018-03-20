@@ -1,5 +1,5 @@
 from multiprocessing import Process
-from hydroid.HYDROIDexp import assign_peaks_interactive
+from hydroid.HYDROIDexp import assign_peaks_interactive,call_peaks_interactive
 import tempfile,os
 
 
@@ -29,6 +29,17 @@ class hydroidConfig(object):
 column,	lname,				leftlim,	rightlim,	peakthresh,	min_dist_left,	min_dist_right,	segments,	base,	interpolate,	alignpos,	seqpeak,	seqpos,	addpeaks,	delpeaks \n''')
             for lane in self.laneList:
                 file.write('%s,%s,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN, , \n'%(lane,lane))
+
+        def changeName(self,old_name,new_name):
+            with open(fd, 'r') as file :
+                filedata = file.read()
+
+                # Replace the target string
+            filedata = filedata.replace('old_name', 'new_name')
+
+                # Write the file out again
+            with open(fd, 'w') as file:
+                file.write(filedata)
 
 '''
 from Bio import SeqIO

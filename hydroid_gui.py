@@ -102,6 +102,8 @@ class MainWindow(QtWidgets.QMainWindow):
         controlWidgetLayout.addWidget(fastaControlWidget)
         
         self.fastawidget = QtWidgets.QTextEdit()
+        fixed_font = QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont)
+        self.fastawidget.setCurrentFont(fixed_font)
         controlWidgetLayout.addWidget(self.fastawidget)
         
         buttonWidget=QtWidgets.QWidget(self)
@@ -132,9 +134,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.currentState = len(self.states)-1 if self.currentState>=len(self.states) else self.currentState
         if self.currentState==0:
             self.BackBtn.setEnabled(False)
+            self.laneMenu.activateRefButtons(False)
         elif self.currentState==(len(self.states)-1):
             self.NextBtn.setEnabled(False)
         else:
+            self.laneMenu.activateRefButtons(True)
             self.BackBtn.setEnabled(True)
             self.NextBtn.setEnabled(True)
             
@@ -148,9 +152,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if filename[0]:
             with open(filename[0], 'r') as myfile:
                 dataString = myfile.read()
-                print dataString
             self.fastawidget.setPlainText(dataString)
-        
     
     def back(self):
         self.toggleState('back')

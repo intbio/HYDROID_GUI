@@ -12,10 +12,11 @@
 # GNU General Public License v2 for more details.
 # Cheers, Satary.
 #
-import sys, os
+import sys, os, cStringIO
 import pandas as pd
 from PyQt5 import QtGui, QtCore, QtWidgets
 import matplotlib
+from Bio import SeqIO
 matplotlib.use('TkAgg')
 #import matplotlib.pyplot as plt
 import numpy as np
@@ -94,7 +95,7 @@ class LaneMenu(QtWidgets.QWidget):
             #!!!!!!!!!!!!!!!!!!!!
             self.config=hydroidConfig(laneLabels)
             for label in laneLabels:
-                self.laneWidgetList.append(singleLaneWidget(label,filename[0],self.config.configFile,mainwindow=self.parent))
+                self.laneWidgetList.append(singleLaneWidget(label,filename[0],self.config.configFile,laneMenu=self,mainwindow=self.parent))
                 #self.laneWidgetList[-1].killAllThreadsSignal.connect(self.runSingleWidget)
                 self.folderLayout.addWidget(self.laneWidgetList[-1])
     
@@ -110,6 +111,18 @@ class LaneMenu(QtWidgets.QWidget):
                 self.laneWidgetList[i].setParent(None) 
                 self.laneWidgetList.pop(i)
                 
+    def activateRefButtons(self,state):
+        for laneWidget in self.laneWidgetList:
+            if state:
+                if laneWidget.refLaneCheckBox.isChecked():
+                    laneWidget.r_button.setEnabled(False) 
+                    laneWidget.refLaneCheckBox.setEnabled(False) 
+                laneWidget.laneNameWidget.setEnabled(False) 
+            else:
+                laneWidget.r_button.setEnabled(True)
+                laneWidget.refLaneCheckBox.setEnabled(True) 
+                laneWidget.laneNameWidget.setEnabled(True) 
+                
     def closeEvent(self, event):
         print("Running cleanup...")
         if hasattr(self, 'config'):
@@ -119,9 +132,10 @@ class LaneMenu(QtWidgets.QWidget):
 
 
 class singleLaneWidget(QtWidgets.QWidget):
-    killAllThreadsSignal = QtCore.pyqtSignal(QtWidgets.QWidget)
-    def __init__(self,label,lane_profile_file,lane_config_file,name=None,mainwindow=None):
+    nameChangedSignal = QtCore.pyqtSignal(QtWidgets.QWidget)
+    def __init__(self,label,lane_profile_file,lane_config_file,name=None,mainwindow=None,laneMenu=None):
         super(singleLaneWidget, self).__init__()
+        self.laneMenu=laneMenu
         self.mainwindow=mainwindow
         self.label=label
         self.lane_profile_file=lane_profile_file
@@ -147,6 +161,7 @@ class singleLaneWidget(QtWidgets.QWidget):
         self.r_button.clicked.connect(self.runTask)
         
         self.laneNameWidget=QtWidgets.QLineEdit(self.label)
+        self.laneNameWidget.editingFinished.connect(self.rename)
         
         self.strandCB=QtWidgets.QComboBox()
         self.strandCB.addItems(["TS", "BS"])
@@ -168,7 +183,9 @@ class singleLaneWidget(QtWidgets.QWidget):
         self.Layout.addWidget(self.labeledEnd,0,3)
         self.Layout.addWidget(self.refLaneCheckBox,0,4)
         
-    
+    def rename(self):
+        #self.emit.nameChangedSignal(self)
+        pass
     def runTask(self):
         print self.mainwindow.states[self.mainwindow.currentState]
         if self.workingProcess!=None:
@@ -177,11 +194,29 @@ class singleLaneWidget(QtWidgets.QWidget):
             self.workingProcess=PlotProcess(FUNC='assign_peaks_interactive',lane_profile_file=self.lane_profile_file,
                                 lane_config_file=self.lane_config_file,
                                 lane_name=self.name)
-        elif self.mainwindow.currentState==1:
+        elif self.mainwindow.currentState==1:            
+            sInput = cStringIO.StringIO(self.mainwindow.fastawidget.toPlainText()) 
+            try:  
+                TS_seq=SeqIO.parse(sInput,'fasta').next().seq
+            except:
+                error_dialog = QtWidgets.QErrorMessage(self)
+                error_dialog.setWindowModality(QtCore.Qt.WindowModal)
+                error_dialog.showMessage('No sequence provided!')
+                return
+                
+            BS_seq=TS_seq.reverse_complement()
+            DNAseq = TS_seq if self.strandCB.currentText() == "TS" else BS_seq
+            labeled_end = 'three_prime' if self.labeledEnd.currentText() == "3`" else 'five_prime'
+            helper_prof_names=[]
+            for laneWidget in self.laneMenu.laneWidgetList:
+                if laneWidget.strandCB.currentText() == self.strandCB.currentText():
+                    if laneWidget.refLaneCheckBox.isChecked():
+                        helper_prof_names.append(laneWidget.name)
+                        
             self.workingProcess=PlotProcess(FUNC='call_peaks_interactive',lane_profile_file=self.lane_profile_file,
                                 lane_config_file=self.lane_config_file,
-                                lane_name=self.name,DNAseq=s['seq'],
-                                labeled_end=s['label'], helper_prof_names=s['helper_profiles'])
+                                lane_name=self.name,DNAseq=DNAseq,
+                                labeled_end=labeled_end, helper_prof_names=helper_prof_names)
 
 
 '''
