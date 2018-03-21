@@ -93,7 +93,6 @@ class LaneMenu(QtWidgets.QWidget):
             self.config=hydroidConfig(laneLabels)
             for label in laneLabels:
                 self.laneWidgetList.append(singleLaneWidget(label,filename[0],self.config.configFile,laneMenu=self,mainwindow=self.parent))
-                #self.laneWidgetList[-1].killAllThreadsSignal.connect(self.runSingleWidget)
                 self.folderLayout.addWidget(self.laneWidgetList[-1])
     
            

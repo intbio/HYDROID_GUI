@@ -242,6 +242,7 @@ class singleLaneWidget(QtWidgets.QWidget):
                                         csv_file=self.intensities,
                                         pngfileout=self.tempFile,
                                         DNAseq=DNAseq, graphshow=True, prof_columns='Intensity',
+                                        title=self.name,
                                         seq_column="Site", 
                                         colorb={'A':'#0b0','T':'#00b','G':'#fff','C':'#fff'},
                                         colorf={'A':'#fafafa','T':'#fafafa','G':'#000','C':'#000'})
