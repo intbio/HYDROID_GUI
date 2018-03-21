@@ -12,7 +12,7 @@
 # GNU General Public License v2 for more details.
 # Cheers, Satary.
 #
-import sys, os, cStringIO
+import sys, os, cStringIO, tempfile
 from PyQt5 import QtGui, QtCore, QtWidgets
 import matplotlib
 matplotlib.use('TkAgg')
@@ -96,12 +96,7 @@ class LaneMenu(QtWidgets.QWidget):
                 #self.laneWidgetList[-1].killAllThreadsSignal.connect(self.runSingleWidget)
                 self.folderLayout.addWidget(self.laneWidgetList[-1])
     
-    def runSingleWidget(self,lanewidget):
-        if self.widgetWithActiveThread != None:
-            self.widgetWithActiveThread.stopThread() 
-        self.widgetWithActiveThread=lanewidget
-        self.widgetWithActiveThread.startThread() 
-            
+           
                 
     def removeAll(self):
         for i in reversed(range(len(self.laneWidgetList))):
@@ -144,6 +139,8 @@ class singleLaneWidget(QtWidgets.QWidget):
         self.lane_profile_file=lane_profile_file
         self.lane_config_file=lane_config_file
         self.workingProcess=None
+        self.intensities=None
+        fd,self.tempFile=tempfile.mkstemp()
         
         if name is not None:
             self.name=name
@@ -191,7 +188,6 @@ class singleLaneWidget(QtWidgets.QWidget):
             if not self.laneMenu.namePresent(self.laneNameWidget.text()):
                 self.laneMenu.config.changeName(self.name,self.laneNameWidget.text())
                 self.name = self.laneNameWidget.text()
-                print self.name
             else:
                 error_dialog = QtWidgets.QErrorMessage(self)
                 error_dialog.setWindowModality(QtCore.Qt.WindowModal)
@@ -208,6 +204,7 @@ class singleLaneWidget(QtWidgets.QWidget):
             self.workingProcess=PlotProcess(FUNC='assign_peaks_interactive',lane_profile_file=self.lane_profile_file,
                                 lane_config_file=self.lane_config_file,
                                 lane_name=self.name)
+                                
         elif self.mainwindow.currentState!=0:            
             sInput = cStringIO.StringIO(self.mainwindow.fastawidget.toPlainText()) 
             try:  
@@ -232,21 +229,28 @@ class singleLaneWidget(QtWidgets.QWidget):
                                     lane_name=self.name,DNAseq=DNAseq,
                                     labeled_end=labeled_end, helper_prof_names=helper_prof_names)
             elif self.mainwindow.currentState==2:
+                fd,self.intensities=tempfile.mkstemp()
                 self.workingProcess=PlotProcess(FUNC='fit_peaks',lane_profile_file=self.lane_profile_file,
                                     lane_config_file=self.lane_config_file,
                                     lane_name=self.name,DNAseq=DNAseq,
                                     out_path=self.mainwindow.workDir,
                                     peaktype='Gaussian',fitting_constraint='dSIGMA>=0',maxfev=50000,
-                                    graphshow=True,plotcontrib=True,csvfileout='%s_fitted_intensities.csv'%self.name,
-                                    pngfileout='%s_fitted_intensities.png'%self.name )
+                                    graphshow=True,plotcontrib=True,csvfileout=self.intensities,
+                                    pngfileout=self.tempFile )
             elif self.mainwindow.currentState==3:
-                self.workingProcess=PlotProcess(FUNC='plot_prof_on_seq',
-                                    csv_file=os.path.join(self.mainwindow.workDir,'%s_fitted_intensities.csv'%self.name),
-                                    pngfileout=os.path.join(self.mainwindow.workDir,'%s_freq_profile.png'%self.name),
-                                    DNAseq=DNAseq, graphshow=True, prof_columns='Intensity',
-                                    seq_column="Site", 
-                                    colorb={'A':'#0b0','T':'#00b','G':'#fff','C':'#fff'},
-                                    colorf={'A':'#fafafa','T':'#fafafa','G':'#000','C':'#000'})
+                if self.intensities !=None :
+                    self.workingProcess=PlotProcess(FUNC='plot_prof_on_seq',
+                                        csv_file=self.intensities,
+                                        pngfileout=self.tempFile,
+                                        DNAseq=DNAseq, graphshow=True, prof_columns='Intensity',
+                                        seq_column="Site", 
+                                        colorb={'A':'#0b0','T':'#00b','G':'#fff','C':'#fff'},
+                                        colorf={'A':'#fafafa','T':'#fafafa','G':'#000','C':'#000'})
+                else:
+                    error_dialog = QtWidgets.QErrorMessage(self)
+                    error_dialog.setWindowModality(QtCore.Qt.WindowModal)
+                    error_dialog.showMessage('Perform quantification first!')
+                    return
                                     
         
 def main():

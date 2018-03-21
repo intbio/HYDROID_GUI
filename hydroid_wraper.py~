@@ -47,6 +47,24 @@ column,	lname,				leftlim,	rightlim,	peakthresh,	min_dist_left,	min_dist_right,	
                         file.write(','.join(splitline)+'\n')
                     else:
                         file.write(line+'\n')
+    
+    def calcNamedLines(self,name):
+        '''
+        calculates the amount of lanes with name
+        '''
+        with open(self.configFile, 'r') as file :
+            for line in file:
+                if line[0]=='#':
+                    file.write(line+'\n')
+                    
+                else:
+                    splitline=line.split(',')
+                    if splitline[1]== name:
+                        
+                        splitline[1]=new_name
+                        file.write(','.join(splitline)+'\n')
+                    else:
+                        file.write(line+'\n')
               
 
 '''
@@ -91,7 +109,6 @@ class PlotProcess(object):
                 kwargs=kwargs)
         elif FUNC=='plot_prof_on_seq':
             csv_file=kwargs.pop('csv_file')
-            print kwargs
             self.plot_process = Process(
                 target=plot_prof_on_seq,
                 args=(csv_file,),

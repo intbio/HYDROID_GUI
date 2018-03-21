@@ -47,6 +47,22 @@ column,	lname,				leftlim,	rightlim,	peakthresh,	min_dist_left,	min_dist_right,	
                         file.write(','.join(splitline)+'\n')
                     else:
                         file.write(line+'\n')
+    
+    def calcNamedLines(self,name):
+        '''
+        calculates the amount of lanes with name
+        '''
+        i=0
+        with open(self.configFile, 'r') as file :
+            for line in file:
+                if line[0]=='#':
+                    pass                    
+                else:
+                    splitline=line.split(',')
+                    if splitline[1]== name:
+                        i+=1
+        return i
+
               
 
 '''
