@@ -1,14 +1,14 @@
 from multiprocessing import Process
-from hydroid.HYDROIDexp import assign_peaks_interactive
+from hydroid.HYDROIDexp import assign_peaks_interactive,call_peaks_interactive
 import tempfile,os
 
 
 class hydroidConfig(object):
-     def __init__(self,laneList):
+    def __init__(self,laneList):
         self.laneList=laneList
         #we use it like that as regular temfile can not be opend multiple times in windows
-        fd,self.configFile=tempfile.mkstemp()
-        with os.fdopen(fd,'w') as file:
+        self.fd,self.configFile=tempfile.mkstemp()
+        with os.fdopen(self.fd,'w') as file:
             file.write('''#
 #column - name of column with an array of profile values in lane_profile.xls
 #lanme - arbitrary name of the gel lane (e.g. experiment label).
@@ -30,7 +30,41 @@ column,	lname,				leftlim,	rightlim,	peakthresh,	min_dist_left,	min_dist_right,	
             for lane in self.laneList:
                 file.write('%s,%s,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN, , \n'%(lane,lane))
 
-        
+    def changeName(self,old_name,new_name):
+        with open(self.configFile, 'r') as file :
+            filedata = file.read()
+
+        lines = filedata.splitlines()
+        with open(self.configFile, 'w') as file:
+            for line in lines:
+                if line[0]=='#':
+                    file.write(line+'\n')
+                    
+                else:
+                    splitline=line.split(',')
+                    if splitline[1]== old_name:
+                        splitline[1]=new_name
+                        file.write(','.join(splitline)+'\n')
+                    else:
+                        file.write(line+'\n')
+        with open(self.configFile, 'r') as file :
+            print file.read()
+               
+
+'''
+from Bio import SeqIO
+
+lane_profile_file="data/lane_profiles.xls"
+lane_config_file="data/lane_config.csv"
+#Read DNA seqeunce from file via biopython
+TS_seq=SeqIO.parse(open("data/DNA_seq.fasta"),'fasta').next().seq
+BS_seq=TS_seq.reverse_complement()
+lane_sets=[
+{'footprinting_profile':'scCSE4_601TA_BS','helper_profiles':['GA_601TA_BS','CT_601TA_BS'],'seq':BS_seq,'label':'three_prime'},
+{'footprinting_profile':'scCSE4_601TA_TS','helper_profiles':['GA_601TA_TS','CT_601TA_TS'],'seq':TS_seq,'label':'three_prime'}
+]
+call_peaks_interactive(lane_profile_file,lane_config_file,DNAseq=s['seq'],labeled_end=s['label'],lane_name=s['footprinting_profile'],helper_prof_names=s['helper_profiles'])
+'''        
         
         
 class PlotProcess(object):

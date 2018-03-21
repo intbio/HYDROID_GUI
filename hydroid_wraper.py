@@ -4,11 +4,11 @@ import tempfile,os
 
 
 class hydroidConfig(object):
-     def __init__(self,laneList):
+    def __init__(self,laneList):
         self.laneList=laneList
         #we use it like that as regular temfile can not be opend multiple times in windows
-        fd,self.configFile=tempfile.mkstemp()
-        with os.fdopen(fd,'w') as file:
+        self.fd,self.configFile=tempfile.mkstemp()
+        with os.fdopen(self.fd,'w') as file:
             file.write('''#
 #column - name of column with an array of profile values in lane_profile.xls
 #lanme - arbitrary name of the gel lane (e.g. experiment label).
@@ -30,16 +30,24 @@ column,	lname,				leftlim,	rightlim,	peakthresh,	min_dist_left,	min_dist_right,	
             for lane in self.laneList:
                 file.write('%s,%s,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN, , \n'%(lane,lane))
 
-        def changeName(self,old_name,new_name):
-            with open(fd, 'r') as file :
-                filedata = file.read()
+    def changeName(self,old_name,new_name):
+        with open(self.configFile, 'r') as file :
+            filedata = file.read()
 
-                # Replace the target string
-            filedata = filedata.replace('old_name', 'new_name')
-
-                # Write the file out again
-            with open(fd, 'w') as file:
-                file.write(filedata)
+        lines = filedata.splitlines()
+        with open(self.configFile, 'w') as file:
+            for line in lines:
+                if line[0]=='#':
+                    file.write(line+'\n')
+                    
+                else:
+                    splitline=line.split(',')
+                    if splitline[1]== old_name:
+                        splitline[1]=new_name
+                        file.write(','.join(splitline)+'\n')
+                    else:
+                        file.write(line+'\n')
+              
 
 '''
 from Bio import SeqIO

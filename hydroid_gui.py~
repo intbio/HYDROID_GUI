@@ -14,25 +14,8 @@
 # Cheers, Satary.
 #
 
-import sys,os,time,operator
-import numpy as np
+import sys,os
 from PyQt5 import QtGui, QtCore, QtWidgets
-
-#from file_source_widget import FileSourceWidget
-
-#import matplotlib
-#matplotlib.use('TkAgg')
-
-#### Uncomment these lines if building py2exe binary with window output only
-import warnings
-warnings.simplefilter('ignore')
-
-#from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-#from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-#import matplotlib.pyplot as plt
-##import matplotlib.gridspec as gridspec
-#import matplotlib.mlab as mlab
-
 from state_widget import StateWidget
 from lane_menu import LaneMenu
 
@@ -102,6 +85,8 @@ class MainWindow(QtWidgets.QMainWindow):
         controlWidgetLayout.addWidget(fastaControlWidget)
         
         self.fastawidget = QtWidgets.QTextEdit()
+        fixed_font = QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont)
+        self.fastawidget.setCurrentFont(fixed_font)
         controlWidgetLayout.addWidget(self.fastawidget)
         
         buttonWidget=QtWidgets.QWidget(self)
@@ -132,9 +117,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.currentState = len(self.states)-1 if self.currentState>=len(self.states) else self.currentState
         if self.currentState==0:
             self.BackBtn.setEnabled(False)
+            self.laneMenu.activateRefButtons(False)
         elif self.currentState==(len(self.states)-1):
             self.NextBtn.setEnabled(False)
         else:
+            self.laneMenu.activateRefButtons(True)
             self.BackBtn.setEnabled(True)
             self.NextBtn.setEnabled(True)
             
@@ -146,11 +133,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def openFastaFile(self):
         filename=QtWidgets.QFileDialog.getOpenFileName(self,'Open FASTA',filter="FASTA files (*.fasta)")
         if filename[0]:
-            with open(filename, 'r') as myfile:
+            with open(filename[0], 'r') as myfile:
                 dataString = myfile.read()
-                print dataString
             self.fastawidget.setPlainText(dataString)
-        
     
     def back(self):
         self.toggleState('back')

@@ -13,15 +13,12 @@
 # Cheers, Satary.
 #
 import sys, os, cStringIO
-import pandas as pd
 from PyQt5 import QtGui, QtCore, QtWidgets
 import matplotlib
-from Bio import SeqIO
 matplotlib.use('TkAgg')
-#import matplotlib.pyplot as plt
-import numpy as np
-from time import sleep
-from hydroid.HYDROIDexp import assign_peaks_interactive
+
+import pandas as pd
+from Bio import SeqIO
 from hydroid_wraper import hydroidConfig,PlotProcess
 QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
 
@@ -127,7 +124,13 @@ class LaneMenu(QtWidgets.QWidget):
         print("Running cleanup...")
         if hasattr(self, 'config'):
             os.remove(self.config.configFile)
-
+            
+    def namePresent(self,name):
+        for laneWidget in self.laneWidgetList:
+            if laneWidget.name == name:
+                return True
+        return False        
+            
  
 
 
@@ -184,8 +187,19 @@ class singleLaneWidget(QtWidgets.QWidget):
         self.Layout.addWidget(self.refLaneCheckBox,0,4)
         
     def rename(self):
-        #self.emit.nameChangedSignal(self)
-        pass
+        if self.name != self.laneNameWidget.text():
+            if not self.laneMenu.namePresent(self.laneNameWidget.text()):
+                self.laneMenu.config.changeName(self.name,self.laneNameWidget.text())
+                self.name = self.laneNameWidget.text()
+                print self.name
+            else:
+                error_dialog = QtWidgets.QErrorMessage(self)
+                error_dialog.setWindowModality(QtCore.Qt.WindowModal)
+                error_dialog.showMessage('Names should be unique!')
+                self.laneNameWidget.setText(self.name)
+        
+        
+        
     def runTask(self):
         print self.mainwindow.states[self.mainwindow.currentState]
         if self.workingProcess!=None:

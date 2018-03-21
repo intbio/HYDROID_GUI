@@ -14,25 +14,8 @@
 # Cheers, Satary.
 #
 
-import sys,os,time,operator
-import numpy as np
+import sys,os
 from PyQt5 import QtGui, QtCore, QtWidgets
-
-#from file_source_widget import FileSourceWidget
-
-#import matplotlib
-#matplotlib.use('TkAgg')
-
-#### Uncomment these lines if building py2exe binary with window output only
-import warnings
-warnings.simplefilter('ignore')
-
-#from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-#from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-#import matplotlib.pyplot as plt
-##import matplotlib.gridspec as gridspec
-#import matplotlib.mlab as mlab
-
 from state_widget import StateWidget
 from lane_menu import LaneMenu
 
@@ -45,7 +28,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         
-        self.states=['Locating peaks','Assigning peaks','Quantification','Results','Export']
+        self.states=['Locating peaks','Assigning peaks','Quantification','Results']
         self.currentState=0       
         self.workDir=unicode(QtCore.QDir.currentPath())
         
