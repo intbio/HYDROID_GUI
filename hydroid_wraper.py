@@ -1,5 +1,5 @@
 from multiprocessing import Process
-from hydroid.HYDROIDexp import assign_peaks_interactive,call_peaks_interactive
+from hydroid.HYDROIDexp import assign_peaks_interactive,call_peaks_interactive,fit_peaks,plot_prof_on_seq
 import tempfile,os
 
 
@@ -82,6 +82,20 @@ class PlotProcess(object):
                 target=call_peaks_interactive,
                 args=(pf,cf),
                 kwargs=kwargs)
+        elif FUNC=='fit_peaks':
+            pf=kwargs.pop('lane_profile_file')
+            cf=kwargs.pop('lane_config_file')
+            self.plot_process = Process(
+                target=fit_peaks,
+                args=(pf,cf),
+                kwargs=kwargs)
+        elif FUNC=='plot_prof_on_seq':
+            csv_file=kwargs.pop('csv_file')
+            self.plot_process = Process(
+                target=plot_prof_on_seq,
+                args=(csv_file,),
+                kwargs=kwargs)       
+                
         else:
             print 'No action assigned'
             return

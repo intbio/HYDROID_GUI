@@ -191,7 +191,6 @@ class singleLaneWidget(QtWidgets.QWidget):
             if not self.laneMenu.namePresent(self.laneNameWidget.text()):
                 self.laneMenu.config.changeName(self.name,self.laneNameWidget.text())
                 self.name = self.laneNameWidget.text()
-                print self.name
             else:
                 error_dialog = QtWidgets.QErrorMessage(self)
                 error_dialog.setWindowModality(QtCore.Qt.WindowModal)
@@ -208,7 +207,7 @@ class singleLaneWidget(QtWidgets.QWidget):
             self.workingProcess=PlotProcess(FUNC='assign_peaks_interactive',lane_profile_file=self.lane_profile_file,
                                 lane_config_file=self.lane_config_file,
                                 lane_name=self.name)
-        elif self.mainwindow.currentState==1:            
+        elif self.mainwindow.currentState!=0:            
             sInput = cStringIO.StringIO(self.mainwindow.fastawidget.toPlainText()) 
             try:  
                 TS_seq=SeqIO.parse(sInput,'fasta').next().seq
@@ -226,27 +225,28 @@ class singleLaneWidget(QtWidgets.QWidget):
                 if laneWidget.strandCB.currentText() == self.strandCB.currentText():
                     if laneWidget.refLaneCheckBox.isChecked():
                         helper_prof_names.append(laneWidget.name)
-                        
-            self.workingProcess=PlotProcess(FUNC='call_peaks_interactive',lane_profile_file=self.lane_profile_file,
-                                lane_config_file=self.lane_config_file,
-                                lane_name=self.name,DNAseq=DNAseq,
-                                labeled_end=labeled_end, helper_prof_names=helper_prof_names)
-
-
-'''
-from Bio import SeqIO
-
-lane_profile_file="data/lane_profiles.xls"
-lane_config_file="data/lane_config.csv"
-#Read DNA seqeunce from file via biopython
-TS_seq=SeqIO.parse(open("data/DNA_seq.fasta"),'fasta').next().seq
-BS_seq=TS_seq.reverse_complement()
-lane_sets=[
-{'footprinting_profile':'scCSE4_601TA_BS','helper_profiles':['GA_601TA_BS','CT_601TA_BS'],'seq':BS_seq,'label':'three_prime'},
-{'footprinting_profile':'scCSE4_601TA_TS','helper_profiles':['GA_601TA_TS','CT_601TA_TS'],'seq':TS_seq,'label':'three_prime'}
-]
-call_peaks_interactive(lane_profile_file,lane_config_file,DNAseq=s['seq'],labeled_end=s['label'],lane_name=s['footprinting_profile'],helper_prof_names=s['helper_profiles'])
-'''
+            if self.mainwindow.currentState==1:            
+                self.workingProcess=PlotProcess(FUNC='call_peaks_interactive',lane_profile_file=self.lane_profile_file,
+                                    lane_config_file=self.lane_config_file,
+                                    lane_name=self.name,DNAseq=DNAseq,
+                                    labeled_end=labeled_end, helper_prof_names=helper_prof_names)
+            elif self.mainwindow.currentState==2:
+                self.workingProcess=PlotProcess(FUNC='fit_peaks',lane_profile_file=self.lane_profile_file,
+                                    lane_config_file=self.lane_config_file,
+                                    lane_name=self.name,DNAseq=DNAseq,
+                                    out_path=self.mainwindow.workDir,
+                                    peaktype='Gaussian',fitting_constraint='dSIGMA>=0',maxfev=50000,
+                                    graphshow=True,plotcontrib=True,csvfileout='%s_fitted_intensities.csv'%self.name,
+                                    pngfileout='%s_fitted_intensities.png'%self.name )
+            elif self.mainwindow.currentState==3:
+                self.workingProcess=PlotProcess(FUNC='plot_prof_on_seq',
+                                    csv_file=os.path.join(self.mainwindow.workDir,'%s_fitted_intensities.csv'%self.name),
+                                    pngfileout=os.path.join(self.mainwindow.workDir,'%s_freq_profile.png'%self.name),
+                                    DNAseq=DNAseq, graphshow=True, prof_columns='Intensity',
+                                    seq_column="Site", 
+                                    colorb={'A':'#0b0','T':'#00b','G':'#fff','C':'#fff'},
+                                    colorf={'A':'#fafafa','T':'#fafafa','G':'#000','C':'#000'})
+                                    
         
 def main():
     
