@@ -125,11 +125,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self.laneMenu.activateRefButtons(True)
             self.BackBtn.setEnabled(True)
             self.NextBtn.setEnabled(True)
-            
+        
+        if self.laneMenu.laneWidgetList:
+            for laneWidget in self.laneMenu.laneWidgetList:
+                if laneWidget.workingProcess!=None:
+                    laneWidget.workingProcess.plot_process.terminate()
+                    
         self.stateWidget.currentState=self.currentState
         self.stateWidget.update()
-        
-        # put some meat here
         
     def openFastaFile(self):
         filename=QtWidgets.QFileDialog.getOpenFileName(self,'Open FASTA',filter="FASTA files (*.fasta)")
@@ -149,19 +152,15 @@ class MainWindow(QtWidgets.QMainWindow):
         if hasattr(self.laneMenu, 'config'):
             os.remove(self.laneMenu.config.configFile)
             for laneWidget in self.laneMenu.laneWidgetList:
-                os.remove(laneWidget.tempFile)
+                try:
+                    os.remove(laneWidget.tempFile)
+                except:
+                    pass
                 if laneWidget.workingProcess!=None:
                     laneWidget.workingProcess.plot_process.terminate()
                 if laneWidget.intensities != None:
                     os.remove(laneWidget.intensities)
         
-'''      
-    def assignConnections(self):
-        self.connect(self.laneMenu,QtCore.SIGNAL("updateFilePreview"),self.set_data)
-        self.connect(self.laneMenu,QtCore.SIGNAL("updateUI"),self.repaint)
-        self.connect(self.laneMenu,QtCore.SIGNAL("runCalculations"),self.plot_multiple_files)
-        self.connect(self.settingsWidget,QtCore.SIGNAL("settingsUpdatedSignal"),self.apply_settings)
-'''   
 
 
 def main():

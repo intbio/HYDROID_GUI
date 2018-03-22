@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import tempfile,os,sys,pickle
 if sys.platform == 'win32':
     from multiprocessing import Process
@@ -37,7 +38,7 @@ class hydroidConfig(object):
 ##If multiple lines with the same lname are present the last one will be read.
 column,	lname,				leftlim,	rightlim,	peakthresh,	min_dist_left,	min_dist_right,	segments,	base,	interpolate,	alignpos,	seqpeak,	seqpos,	addpeaks,	delpeaks \n''')
             for lane in self.laneList:
-                file.write('%s,%s,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN, , \n'%(lane,lane))
+                file.write(u'%s,%s,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN,NaN, , \n'%(lane,lane))
 
     def changeName(self,old_name,new_name):
         with open(self.configFile, 'r') as file :
@@ -46,6 +47,7 @@ column,	lname,				leftlim,	rightlim,	peakthresh,	min_dist_left,	min_dist_right,	
         lines = filedata.splitlines()
         with open(self.configFile, 'w') as file:
             for line in lines:
+                line = unicode(line, "utf-8")
                 if line[0]=='#':
                     file.write(line+'\n')
                     
@@ -53,7 +55,7 @@ column,	lname,				leftlim,	rightlim,	peakthresh,	min_dist_left,	min_dist_right,	
                     splitline=line.split(',')
                     if splitline[1]== old_name:
                         splitline[1]=new_name
-                        file.write(','.join(splitline)+'\n')
+                        file.write(u','.join(splitline)+'\n')
                     else:
                         file.write(line+'\n')
     

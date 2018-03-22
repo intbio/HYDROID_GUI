@@ -13,6 +13,7 @@
 # Cheers, Satary.
 #
 import sys, os, cStringIO, tempfile
+from shutil import copyfile
 from PyQt5 import QtGui, QtCore, QtWidgets
 import pandas as pd
 from Bio import SeqIO
@@ -28,7 +29,6 @@ class LaneMenu(QtWidgets.QWidget):
         super(LaneMenu, self).__init__(parent)
         self.setAcceptDrops(True)
         self.parent=parent
-        self.filters="Excel files (*.xls)"
         self.laneWidgetList=[]
 
         self.foldersScrollArea = QtWidgets.QScrollArea(self)
@@ -69,15 +69,30 @@ class LaneMenu(QtWidgets.QWidget):
         
         openFiles = QtWidgets.QPushButton("Open lane profiles")
         openFiles.clicked.connect(self.openFile)
- 
+        
+        self.saveConfigFile = QtWidgets.QPushButton("Save config file")
+        self.saveConfigFile.clicked.connect(self.saveConfig)
+        self.saveConfigFile.setEnabled(False)
+        
         self.mainLayout = QtWidgets.QVBoxLayout(self)
         self.mainLayout.addWidget(openFiles)
         self.mainLayout.addWidget(self.foldersScrollArea)
+        self.mainLayout.addWidget(self.saveConfigFile)
+        
         self.setMaximumWidth(350)
         self.setGeometry(300, 200, 300, 400)
     
+    def saveConfig(self):
+        filename=QtWidgets.QFileDialog.getSaveFileName(self,'Save HYDROID Lane config file',filter="csv. files (*.csv)")
+        # returns tupple like ('name', 'filter')
+        # that means that filename string is not empty as '' == False in boolean conversion
+        if filename[0]:
+            try:
+                copyfile(self.config.configFile,filename[0])
+            except IOError:
+                print 'Can not write to %s'% filename[0]
     def openFile(self):
-        filename=QtWidgets.QFileDialog.getOpenFileName(self,'Open Lane profiles',filter=self.filters)
+        filename=QtWidgets.QFileDialog.getOpenFileName(self,'Open Lane profiles',filter="Excel files (*.xls)")
         # returns tupple like ('name', 'filter')
         # that means that filename string is not empty as '' == False in boolean conversion
         if filename[0]:
@@ -90,6 +105,7 @@ class LaneMenu(QtWidgets.QWidget):
             for label in laneLabels:
                 self.laneWidgetList.append(singleLaneWidget(label,filename[0],self.config.configFile,laneMenu=self,mainwindow=self.parent))
                 self.folderLayout.addWidget(self.laneWidgetList[-1])
+        self.saveConfigFile.setEnabled(True)
     
            
                 
