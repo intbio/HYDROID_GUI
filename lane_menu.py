@@ -265,7 +265,7 @@ class singleLaneWidget(QtWidgets.QWidget):
                     return
             elif self.mainwindow.currentState==4:
                 if self.intensities !=None :
-                    self.table = csvTable(self.intensities)
+                    self.table = csvTable(self.intensities,windowName=self.name)
                     self.table.show()
                 else:
                     error_dialog = QtWidgets.QErrorMessage(self)

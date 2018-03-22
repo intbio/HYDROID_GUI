@@ -9,7 +9,7 @@ sip.setapi('QVariant', 2)
 from PyQt5 import QtWidgets, QtCore, QtGui
 
 class csvTable(QtWidgets.QWidget):
-    def __init__(self, fileName, parent=None):
+    def __init__(self, fileName, windowName='name',parent=None):
         super(csvTable, self).__init__(parent)
         self.clip = QtWidgets.QApplication.clipboard()
 
@@ -37,7 +37,7 @@ class csvTable(QtWidgets.QWidget):
         self.layoutVertical = QtWidgets.QVBoxLayout(self)
         self.layoutVertical.addWidget(self.tableView)
         self.layoutVertical.addWidget(self.pushButtonWrite)
-        self.setWindowTitle('Export Intensity file')
+        self.setWindowTitle(windowName)
         self.loadCsv(self.fileName)
 
     def loadCsv(self, fileName):
