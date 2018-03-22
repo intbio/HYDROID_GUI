@@ -3,8 +3,7 @@ GUI for HYDROID - Python package for analyzing hydroxyl-radical footprinting exp
 ## This is a simple gui for hydroid_exp module
 ![](data/screenshot.png)
 ## Installation
-HYDROID_GUI gui is tested to work on python 2.7 through conda environment manager.
-HYDROID_GUI gui runs on Linux (ubuntu 16.04, 14.04 tested), Windows and MacOS
+HYDROID_GUI gui is tested to work on python 2.7 through conda environment manager, it runs on Linux (ubuntu 16.04, 14.04 tested), Windows and MacOS
 ### install hydroid
 - conda install -c hydroid hydroid
 - conda install -pyqt
