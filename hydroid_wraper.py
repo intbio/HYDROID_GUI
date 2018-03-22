@@ -6,7 +6,6 @@ else:
     billiard.set_start_method('spawn')
     from billiard import Process
     
-from multiprocessing import Process
 import matplotlib
 matplotlib.use('Qt5Agg')
 from hydroid.HYDROIDexp import assign_peaks_interactive,call_peaks_interactive,fit_peaks,plot_prof_on_seq
