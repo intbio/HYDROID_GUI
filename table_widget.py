@@ -1,155 +1,119 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# Copyright (C) Grigoriy A. Armeev, 2015
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 2 as·
-# published by the Free Software Foundation.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License v2 for more details.
-# Cheers, Satary.
-#
+#-*- coding:utf-8 -*-
+import csv,io
+from shutil import copyfile
+import sip
+sip.setapi('QString', 2)
+sip.setapi('QVariant', 2)
 
-from PyQt4 import QtGui,QtCore
-import sys, csv
-import numpy as np
-class TableWidget(QtGui.QTableWidget):
-    def __init__(self,parent=None):
-        super(TableWidget, self).__init__(parent)
-# if you want to use parent's methods and be ugly as I do, use parent =)
-        self.parent=parent
-        self.clip = QtGui.QApplication.clipboard()
+from PyQt5 import QtWidgets, QtCore, QtGui
 
-        self.horizontalHeader().setDefaultSectionSize(60)
-        self.setMinimumWidth(250)
-        self.setMinimumHeight(250)
-        self.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
-        self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
-       
+class csvTable(QtWidgets.QWidget):
+    def __init__(self, fileName, parent=None):
+        super(csvTable, self).__init__(parent)
+        self.clip = QtWidgets.QApplication.clipboard()
 
-        self.rowOrder=[]
-        self.columnOrder=[]
-
-
-    def buildFromList(self,inList,addHeaders=True):
-        '''
-        This methods builds table from rectangular 2D list or np.array
-        where 1 column and 1 line contain names of lines and columns
-        '''
-        self.setRowCount(0)
-        self.setColumnCount(0)
-        if addHeaders:
-            for row in inList[1:,0]:
-                self.insertRow(self.rowCount())
-                self.setVerticalHeaderItem(self.rowCount()-1, QtGui.QTableWidgetItem(row))
-            for col in inList[0,1:]:
-                self.insertColumn(self.columnCount())
-                self.setHorizontalHeaderItem(self.columnCount()-1,QtGui.QTableWidgetItem(col))
-            inList=inList[1:,1:]
-        #asidning values       
-        else:
-            for row in inList[:,0]:
-                self.insertRow(self.rowCount())
-            for col in inList[0,:]:
-                self.insertColumn(self.columnCount())
-        it = np.nditer(inList, flags=['multi_index'])
-        while not it.finished:
-            self.setItem(it.multi_index[0],it.multi_index[1],QtGui.QTableWidgetItem(str(it[0])))
-            it.iternext()
-                      
-        self.verticalHeader().setDefaultSectionSize(self.verticalHeader().minimumSectionSize())
-    
-    def addFromList(self,inList,addHeaders=True):
-        numCols=self.columnCount()
-        for col in inList[:,0]:
-            self.insertColumn(numCols)
-        it = np.nditer(inList, flags=['multi_index'])
-        while not it.finished:
-            self.setItem(it.multi_index[1],it.multi_index[0]+numCols,QtGui.QTableWidgetItem(str(it[0])))
-            it.iternext()
-            
-    def keyPressEvent(self, e):
-        if (e.modifiers() & QtCore.Qt.ControlModifier):        
-            if e.key() == QtCore.Qt.Key_C:
-                self.copySelectionToClipboard()
-            elif e.key() == QtCore.Qt.Key_A:
-                self.selectAll()
-        QtGui.QTableWidget.keyPressEvent(self, e)
-        self.parent.keyPressEvent(e)
         
+        #self.setSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        #self.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        
+        self.fileName = fileName
+
+        self.model = QtGui.QStandardItemModel(self)
+
+        self.tableView = QtWidgets.QTableView(self)
+        self.tableView.setModel(self.model)
+        self.tableView.horizontalHeader().setStretchLastSection(True)
+        
+        self.tableView.horizontalHeader().setDefaultSectionSize(60)
+        self.tableView.setMinimumWidth(500)
+        self.tableView.setMinimumHeight(250)
+        self.tableView.setSizePolicy(QtWidgets.QSizePolicy.Expanding,QtWidgets.QSizePolicy.Minimum)
+
+        self.pushButtonWrite = QtWidgets.QPushButton(self)
+        self.pushButtonWrite.setText("Save File")
+        self.pushButtonWrite.clicked.connect(self.on_pushButtonWrite_clicked)
+
+        self.layoutVertical = QtWidgets.QVBoxLayout(self)
+        self.layoutVertical.addWidget(self.tableView)
+        self.layoutVertical.addWidget(self.pushButtonWrite)
+        self.setWindowTitle('Export Intensity file')
+        self.loadCsv(self.fileName)
+
+    def loadCsv(self, fileName):
+        with open(fileName, "rb") as fileInput:
+            for row in csv.reader(fileInput): 
+                if ''.join(row)[0] != '#':
+                    items = [
+                        QtGui.QStandardItem(field)
+                        for field in row
+                    ]
+                    self.model.appendRow(items)
+
+    def writeCsv(self, fileName):
+        filename=QtWidgets.QFileDialog.getSaveFileName(self,'Save intensity Lane file',filter="csv. files (*.csv)")
+        # returns tupple like ('name', 'filter')
+        # that means that filename string is not empty as '' == False in boolean conversion
+        if filename[0]:
+            try:
+                copyfile(fileName,filename[0])
+            except IOError:
+                print 'Can not write to %s'% filename[0]
+
+    def on_pushButtonWrite_clicked(self):
+        self.writeCsv(self.fileName)
+    
+    def eventFilter(self, source, event):
+        if (event.type() == QtCore.QEvent.KeyPress and
+            event.matches(QtGui.QKeySequence.Copy)):
+            self.copySelection()
+            return True
+        return super(Window, self).eventFilter(source, event)
+    
+    def keyPressEvent(self, e):
+        if (e.modifiers() & QtCore.Qt.ControlModifier):
+            if e.key() == QtCore.Qt.Key_C: #copy
+                self.copySelection()
+                            
+    def copySelection(self,all=False):
+        if all:
+            self.tableView.selectAll()
+        selection = self.tableView.selectedIndexes()
+        if selection:
+            rows = sorted(index.row() for index in selection)
+            columns = sorted(index.column() for index in selection)
+            rowcount = rows[-1] - rows[0] + 1
+            colcount = columns[-1] - columns[0] + 1
+            table = [[''] * colcount for _ in range(rowcount)]
+            for index in selection:
+                row = index.row() - rows[0]
+                column = index.column() - columns[0]
+                table[row][column] = index.data()
+            stream = io.BytesIO()
+            csv.writer(stream, delimiter=',').writerows(table)
+            QtWidgets.QApplication.clipboard().setText(stream.getvalue())
+
     def contextMenuEvent(self, pos):
-        menu = QtGui.QMenu()
+        menu = QtWidgets.QMenu()
         copyAction = menu.addAction("Copy")
         copyAllAction = menu.addAction("Copy All")
         selectAll = menu.addAction("Select All")
         action = menu.exec_(QtGui.QCursor.pos())
         if action == copyAction:
-            self.copySelectionToClipboard()
+            self.copySelection()
         elif action == copyAllAction:
-            self.copySelectionToClipboard(True)
+            self.copySelection(True)
         elif action == selectAll:
-            self.selectAll()
-    def handleSave(self,path):
-        rowLog = range(self.rowCount())
-        rowIndx = [self.visualRow(i) for i in rowLog]
-        rowVis = [x for (y,x) in sorted(zip(rowIndx,rowLog))]
-        
-        colLog = range(self.columnCount())
-        colIndx = [self.visualColumn(i) for i in colLog]
-        colVis = [x for (y,x) in sorted(zip(colIndx,colLog))]
-        
-    
-        with open(unicode(path), 'wb') as stream:
-            writer = csv.writer(stream)
-            rowdata = []
-            rowdata.append("")
-            for column in colVis:
-                rowdata.append(unicode(self.horizontalHeaderItem(column).text()).encode('utf8'))
-            writer.writerow(rowdata) 
-            for row in rowVis:
-               
-                rowdata = []
-                rowdata.append(unicode(self.verticalHeaderItem(row).text()).encode('utf8'))
-                for column in colVis:
-                    
-                    item = self.item(row, column)
-                    if item is not None:
-                        rowdata.append(
-                            unicode(item.text()).encode('utf8'))
-                    else:
-                        rowdata.append('')
-                writer.writerow(rowdata)    
+            self.tableView.selectAll()
 
-    def selectAll(self):    
-        self.setRangeSelected(QtGui.QTableWidgetSelectionRange( 0,0, self.rowCount()-1, self.columnCount()-1)
-                                , True)
-            
-              
-    def copySelectionToClipboard(self,all=False):
-        if all:
-            selected = [QtGui.QTableWidgetSelectionRange( 0,0, self.rowCount()-1, self.columnCount()-1)]
-        else:
-            selected = self.selectedRanges()
-        s = ""
-        for r in xrange(selected[0].topRow(),selected[0].bottomRow()+1):
-            for c in xrange(selected[0].leftColumn(),selected[0].rightColumn()+1):
-                try:
-                    s += str(self.item(r,c).text()) + "\t"
-                except AttributeError:
-                    s += "\t"
-            s = s[:-1] + "\n" #eliminate last '\t'
-            self.clip.setText(s)
-            
-def main():
-    
-    app = QtGui.QApplication(sys.argv)
-    ex = TableWidget()
-    ex.show()
+
+if __name__ == "__main__":
+    import sys
+
+    app = QtWidgets.QApplication(sys.argv)
+    app.setApplicationName('MyWindow')
+
+    main = csvTable("data/results.csv")
+    main.show()
+
     sys.exit(app.exec_())
-
-
-if __name__ == '__main__':
-    main()    

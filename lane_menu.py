@@ -18,6 +18,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 import pandas as pd
 from Bio import SeqIO
 from hydroid_wraper import hydroidConfig,PlotProcess
+from table_widget import csvTable
 QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
 
 
@@ -179,7 +180,7 @@ class singleLaneWidget(QtWidgets.QWidget):
         self.strandCB.setFixedWidth(50)
         
         self.labeledEnd=QtWidgets.QComboBox()
-        self.labeledEnd.addItems(["3`", "5`"])
+        self.labeledEnd.addItems(["3'", "5'"])
         self.labeledEnd.setFixedWidth(50)
 
         self.refLaneCheckBox = QtWidgets.QCheckBox(self)
@@ -227,7 +228,7 @@ class singleLaneWidget(QtWidgets.QWidget):
                 
             BS_seq=TS_seq.reverse_complement()
             DNAseq = TS_seq if self.strandCB.currentText() == "TS" else BS_seq
-            labeled_end = 'three_prime' if self.labeledEnd.currentText() == "3`" else 'five_prime'
+            labeled_end = 'three_prime' if self.labeledEnd.currentText() == "3'" else 'five_prime'
             helper_prof_names=[]
             for laneWidget in self.laneMenu.laneWidgetList:
                 if laneWidget.strandCB.currentText() == self.strandCB.currentText():
@@ -262,7 +263,14 @@ class singleLaneWidget(QtWidgets.QWidget):
                     error_dialog.setWindowModality(QtCore.Qt.WindowModal)
                     error_dialog.showMessage('Perform quantification first!')
                     return
-                                    
+            elif self.mainwindow.currentState==4:
+                if self.intensities !=None :
+                    self.table = csvTable(self.intensities)
+                    self.table.show()
+                else:
+                    error_dialog = QtWidgets.QErrorMessage(self)
+                    error_dialog.setWindowModality(QtCore.Qt.WindowModal)
+                    error_dialog.showMessage('Perform quantification first!')
         
 def main():
     

@@ -29,7 +29,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         
-        self.states=['Locating peaks','Assigning peaks','Quantification','Results']
+        self.states=['Locating peaks','Assigning peaks','Quantification','Results','Export']
         self.currentState=0       
         self.workDir=unicode(QtCore.QDir.currentPath())
         
@@ -75,7 +75,7 @@ class MainWindow(QtWidgets.QMainWindow):
         fastaControlWidget=QtWidgets.QWidget(self)
         fastaControlWidgetLayout=QtWidgets.QHBoxLayout(fastaControlWidget)
         
-        fastaTextLabel=QtWidgets.QLabel('Top strand sequence 5` - 3`:')
+        fastaTextLabel=QtWidgets.QLabel("Top strand sequence 5' - 3':")
         fastaControlWidgetLayout.addWidget(fastaTextLabel)
         
         fastaTextLabel=QtWidgets.QPushButton("Open FASTA")
