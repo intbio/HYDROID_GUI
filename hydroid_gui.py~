@@ -147,6 +147,10 @@ class MainWindow(QtWidgets.QMainWindow):
         print("Running cleanup...")
         if hasattr(self.laneMenu, 'config'):
             os.remove(self.laneMenu.config.configFile)
+            for laneWidget in self.laneMenu.laneWidgetList:
+                os.remove(laneWidget.tempFile)
+                if laneWidget.intensities != None:
+                    os.remove(laneWidget.intensities)
         
 '''      
     def assignConnections(self):

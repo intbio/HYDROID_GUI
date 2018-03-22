@@ -1,6 +1,10 @@
-from multiprocessing import Process
+from billiard import Process
+import billiard
+billiard.set_start_method('spawn')
+import matplotlib
+matplotlib.use('Qt5Agg')
 from hydroid.HYDROIDexp import assign_peaks_interactive,call_peaks_interactive,fit_peaks,plot_prof_on_seq
-import tempfile,os
+import tempfile,os,sys,pickle
 
 
 class hydroidConfig(object):
@@ -105,15 +109,21 @@ class PlotProcess(object):
                 target=fit_peaks,
                 args=(pf,cf),
                 kwargs=kwargs)
+
         elif FUNC=='plot_prof_on_seq':
             csv_file=kwargs.pop('csv_file')
             self.plot_process = Process(
                 target=plot_prof_on_seq,
                 args=(csv_file,),
-                kwargs=kwargs)       
+                kwargs=kwargs)  
+    
                 
         else:
             print 'No action assigned'
             return
         self.plot_process.daemon = True
         self.plot_process.start()
+
+if __name__ == '__main__':
+    kwargs=pickle.load(sys.stdin)
+    PlotProcess(**kwargs)

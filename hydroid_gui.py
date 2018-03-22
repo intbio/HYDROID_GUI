@@ -149,6 +149,8 @@ class MainWindow(QtWidgets.QMainWindow):
             os.remove(self.laneMenu.config.configFile)
             for laneWidget in self.laneMenu.laneWidgetList:
                 os.remove(laneWidget.tempFile)
+                if laneWidget.workingProcess!=None:
+                    laneWidget.workingProcess.plot_process.terminate()
                 if laneWidget.intensities != None:
                     os.remove(laneWidget.intensities)
         

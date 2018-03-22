@@ -1,0 +1,63 @@
+"""
+Sample MP script for hydroid
+"""
+import matplotlib
+matplotlib.use('Qt5Agg')
+from billiard import Process
+#import multiprocessing as mp
+from threading import Thread
+from hydroid.HYDROIDexp import assign_peaks_interactive
+import time
+
+import sys
+from PyQt5.QtWidgets import (QWidget, QToolTip, 
+    QPushButton, QApplication)
+from PyQt5.QtGui import QFont    
+from PyQt5 import QtCore
+
+
+
+class Example(QWidget):
+    
+    def __init__(self):
+        super(Example,self).__init__()
+        
+        self.initUI()
+        
+        
+    def initUI(self):
+        
+        QToolTip.setFont(QFont('SansSerif', 10))
+        
+        self.setToolTip('This is a <b>QWidget</b> widget')
+        
+        btn = QPushButton('Button', self)
+        btn.clicked.connect(runTask)
+        btn.setToolTip('This is a <b>QPushButton</b> widget')
+        btn.resize(btn.sizeHint())
+        btn.move(50, 50)       
+        
+        self.setGeometry(300, 300, 300, 200)
+        self.setWindowTitle('Tooltips')    
+        self.show()
+        
+def runTask():
+    processes=[]
+    profile_file="data/lane_profiles.xls"
+    config_file ="data/lane_config.csv"
+    for LN in ['scCSE4_601TA_BS','scCSE4_601TA_TS']:
+        processes.append(Process(target=assign_peaks_interactive,
+                                 args=(profile_file,config_file,LN)))
+        processes[-1].daemon = True
+        processes[-1].start()
+
+        
+        
+if __name__ == '__main__':
+    #mp.set_start_method('spawn')
+    app = QApplication(sys.argv)
+    ex = Example()
+    sys.exit(app.exec_())
+
+
+    

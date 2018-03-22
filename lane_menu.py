@@ -14,9 +14,6 @@
 #
 import sys, os, cStringIO, tempfile
 from PyQt5 import QtGui, QtCore, QtWidgets
-import matplotlib
-matplotlib.use('TkAgg')
-
 import pandas as pd
 from Bio import SeqIO
 from hydroid_wraper import hydroidConfig,PlotProcess
@@ -33,7 +30,6 @@ class LaneMenu(QtWidgets.QWidget):
         self.parent=parent
         self.filters="Excel files (*.xls)"
         self.laneWidgetList=[]
-        self.widgetWithActiveThread=None
 
         self.foldersScrollArea = QtWidgets.QScrollArea(self)
         self.foldersScrollArea.setWidgetResizable(True)
@@ -196,7 +192,6 @@ class singleLaneWidget(QtWidgets.QWidget):
         
         
     def runTask(self):
-        print self.mainwindow.states[self.mainwindow.currentState]
         if self.workingProcess!=None:
             self.workingProcess.plot_process.terminate()
         if self.mainwindow.currentState==0:

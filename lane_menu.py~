@@ -14,9 +14,6 @@
 #
 import sys, os, cStringIO, tempfile
 from PyQt5 import QtGui, QtCore, QtWidgets
-import matplotlib
-matplotlib.use('TkAgg')
-
 import pandas as pd
 from Bio import SeqIO
 from hydroid_wraper import hydroidConfig,PlotProcess
@@ -242,6 +239,7 @@ class singleLaneWidget(QtWidgets.QWidget):
                                         csv_file=self.intensities,
                                         pngfileout=self.tempFile,
                                         DNAseq=DNAseq, graphshow=True, prof_columns='Intensity',
+                                        title=self.name,
                                         seq_column="Site", 
                                         colorb={'A':'#0b0','T':'#00b','G':'#fff','C':'#fff'},
                                         colorf={'A':'#fafafa','T':'#fafafa','G':'#000','C':'#000'})
