@@ -13,7 +13,8 @@
 
 # Cheers, Satary.
 #
-
+import warnings
+warnings.filterwarnings("ignore")
 import sys,os
 from PyQt5 import QtGui, QtCore, QtWidgets
 from state_widget import StateWidget

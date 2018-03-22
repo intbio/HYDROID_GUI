@@ -1,10 +1,16 @@
-from billiard import Process
-import billiard
-billiard.set_start_method('spawn')
+import tempfile,os,sys,pickle
+if sys.platform == 'win32':
+    from multiprocessing import Process
+else:
+    import billiard
+    billiard.set_start_method('spawn')
+    from billiard import Process
+    
+from multiprocessing import Process
 import matplotlib
 matplotlib.use('Qt5Agg')
 from hydroid.HYDROIDexp import assign_peaks_interactive,call_peaks_interactive,fit_peaks,plot_prof_on_seq
-import tempfile,os,sys,pickle
+
 
 
 class hydroidConfig(object):
