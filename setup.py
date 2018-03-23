@@ -4,7 +4,7 @@ import os
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-version_file = open(os.path.join(here, 'hydroid', 'VERSION'))
+version_file = open(os.path.join(here, 'hydroid_gui', 'VERSION'))
 version = version_file.read().strip()
 
 # Get the long description from the relevant file
@@ -12,7 +12,7 @@ with codecs.open(os.path.join(here, 'DESCRIPTION.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='hydroid',
+    name='hydroid_gui',
 
     # Versions should comply with PEP440. For single-sourced versioning, see
     # http://packaging.python.org/en/latest/tutorial.html#version
