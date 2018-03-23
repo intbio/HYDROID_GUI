@@ -1,7 +1,10 @@
 # HYDROID_GUI
 GUI for HYDROID - Python package for analyzing hydroxyl-radical footprinting experiments of protein-DNA complexes (https://github.com/ncbi/HYDROID)
-## This is a simple gui for hydroid_exp module
-![](data/screenshot.png)
+HYROID_GUI is a sister package that wraps some basic gel lane quantification functionality into a more user friendly graphical interface.
+
+## Video tutorial:
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/dJVoKrpH4f4/0.jpg)](http://www.youtube.com/watch?v=dJVoKrpH4f4)
+
 ## Installation
 HYDROID_GUI gui is tested to work on python 2.7 through conda environment manager, it runs on Linux (ubuntu 16.04, 14.04 tested), Windows and MacOS
 ### install hydroid
@@ -22,6 +25,3 @@ Hydroid gui allows user to
 - export results directly to a spreadsheet editor or scv files
 - save config files for later use with HYDROID Python scripting interface.
 
-Video tutorial:
-
-[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/dJVoKrpH4f4/0.jpg)](http://www.youtube.com/watch?v=dJVoKrpH4f4)
