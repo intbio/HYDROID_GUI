@@ -7,7 +7,7 @@ HYROID_GUI is a sister package that wraps some basic gel lane quantification fun
 
 ## Features
 Hydroid gui allows user to 
-- open lane profile files [extracted from gel images via ImageJ](https://github.com/ncbi/HYDROID/blob/master/examples/example1/exp_s1_extract_lp.md) [video](https://youtu.be/7UCb0IkXL2g)
+- open lane profile files [extracted from gel images via ImageJ](https://github.com/ncbi/HYDROID/blob/master/examples/example1/exp_s1_extract_lp.md) ([see video tutorial](https://youtu.be/7UCb0IkXL2g))
 - perform peak detection, naming and quantification for multiple lanes simultaneously, [see HYDROID workflow for details](https://github.com/ncbi/HYDROID/blob/master/docs/INDEX.md)
 - export results directly to a spreadsheet editor or scv files
 - save config files for later use with HYDROID Python scripting interface.
