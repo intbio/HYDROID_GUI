@@ -1,3 +1,7 @@
+![](https://anaconda.org/hydroid/hydroid_gui/badges/version.svg)
+![](https://anaconda.org/hydroid/hydroid_gui/badges/platforms.svg)
+![](https://anaconda.org/hydroid/hydroid_gui/badges/installer/conda.svg)
+
 # HYDROID_GUI
 GUI for [HYDROID](https://github.com/ncbi/HYDROID) - Python package for analyzing hydroxyl-radical footprinting experiments of protein-DNA complexes 
 HYROID_GUI is a sister package that wraps some basic gel lane quantification functionality into a more user friendly graphical interface.
