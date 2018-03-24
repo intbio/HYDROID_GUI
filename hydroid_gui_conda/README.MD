@@ -4,6 +4,7 @@
 conda install -y conda-build
 conda install -y anaconda-client
 # billiard is in conda-forge
+# beware thai I do not use release from git, but just use master branch
 conda-build -c hydroid -c conda-forge hydroid_gui
 
 anaconda login
