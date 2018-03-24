@@ -1,6 +1,6 @@
-![](https://anaconda.org/hydroid/hydroid_gui/badges/version.svg)
-![](https://anaconda.org/hydroid/hydroid_gui/badges/platforms.svg)
-![](https://anaconda.org/hydroid/hydroid_gui/badges/installer/conda.svg)
+[![](https://anaconda.org/hydroid/hydroid_gui/badges/version.svg)](https://anaconda.org/hydroid/hydroid_gui)
+[![](https://anaconda.org/hydroid/hydroid_gui/badges/platforms.svg)](https://anaconda.org/hydroid/hydroid_gui)
+[![](https://anaconda.org/hydroid/hydroid_gui/badges/installer/conda.svg)](https://anaconda.org/hydroid/hydroid_gui)
 
 # HYDROID_GUI
 GUI for [HYDROID](https://github.com/ncbi/HYDROID) - Python package for analyzing hydroxyl-radical footprinting experiments of protein-DNA complexes 
