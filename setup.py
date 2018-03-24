@@ -71,7 +71,7 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'HYDROID_GUI=hydroid_gui:main,
+            'HYDROID_GUI=hydroid_gui:main',
         ],
     },
     python_requires='==2.7.*',
