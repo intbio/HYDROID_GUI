@@ -36,7 +36,7 @@ requirements:
 
 test:
   # Python imports
-  comands
+  comands:
     - HYDROID_GUI
 
  

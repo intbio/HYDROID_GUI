@@ -159,7 +159,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 if laneWidget.workingProcess!=None:
                     laneWidget.workingProcess.plot_process.terminate()
                 if laneWidget.intensities != None:
-                    os.remove(laneWidget.intensities)
+                    try:
+                        os.remove(laneWidget.intensities)
+                    except:
+                        pass
         
 
 
