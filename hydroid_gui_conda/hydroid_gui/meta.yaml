@@ -17,7 +17,7 @@ build:
     # Put any entry points (scripts to be generated automatically) here. The
     # syntax is module:function.  
 
-    - HYDROID_GUI=hydroid_gui:main
+    - HYDROID_GUI=HYDROID_GUI.hydroid_gui:main
 
   # If this is a new build for the same version, increment the build
   # number. If you do not include this key, it defaults to 0.
