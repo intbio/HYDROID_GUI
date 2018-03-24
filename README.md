@@ -11,17 +11,12 @@ Hydroid gui allows user to
 - perform peak detection, naming and quantification for multiple lanes simultaneously, [see HYDROID workflow for details](https://github.com/ncbi/HYDROID/blob/master/docs/INDEX.md)
 - export results directly to a spreadsheet editor or scv files
 - save config files for later use with HYDROID Python scripting interface.
+HYDROID_GUI gui is tested to work on python 2.7 through conda environment manager, it runs on Linux (ubuntu 16.04, 14.04 tested), Windows and MacOS
 
 ## Installation
-HYDROID_GUI gui is tested to work on python 2.7 through conda environment manager, it runs on Linux (ubuntu 16.04, 14.04 tested), Windows and MacOS
-### install hydroid
-- conda install -c hydroid hydroid
-- conda install pyqt
-- conda install -c conda-forge billiard
-### clone this repo
-- git clone https://github.com/intbio/HYDROID_GUI
-- cd hydroid gui
+### install hydroid through conda
+- conda install -c hydroid hydroid_gui -c conda-forge
 ### run 
-- python hydroid_gui
+- HYDROID_GUI
 
 
