@@ -3,14 +3,19 @@
 [![](https://anaconda.org/hydroid/hydroid_gui/badges/installer/conda.svg)](https://anaconda.org/hydroid/hydroid_gui)
 
 # HYDROID_GUI
-GUI for [HYDROID](https://github.com/ncbi/HYDROID) - Python package for analyzing hydroxyl-radical footprinting experiments of protein-DNA complexes 
-HYROID_GUI is a sister package that wraps some basic gel lane quantification functionality into a more user friendly graphical interface.
+Graphical User Interface for [HYDROID](https://github.com/ncbi/HYDROID) - A Python package for analyzing hydroxyl-radical footprinting experiments of protein-DNA complexes.
+
+HYROID_GUI is a sister add-on package that wraps some basic gel lane quantification functionality into a more user friendly graphical interface.
+
+Please, refer to the HYDROID package web-page [https://github.com/ncbi/HYDROID](https://github.com/ncbi/HYDROID) for the detailed description of the HYDROID approach.
+
+The manual for HYDROID_GUI is provided as a video tutorial (see below).
 
 ## Video tutorial:
 [![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/dJVoKrpH4f4/0.jpg)](http://www.youtube.com/watch?v=dJVoKrpH4f4)
 
 ## Features
-Hydroid gui allows user to 
+HYDROID_GUI allows user to 
 - open lane profile files [extracted from gel images via ImageJ](https://github.com/ncbi/HYDROID/blob/master/examples/example1/exp_s1_extract_lp.md) ([see video tutorial](https://youtu.be/7UCb0IkXL2g))
 - perform peak detection, naming and quantification for multiple lanes simultaneously, [see HYDROID workflow for details](https://github.com/ncbi/HYDROID/blob/master/docs/INDEX.md)
 - export results directly to a spreadsheet editor or scv files
@@ -18,7 +23,7 @@ Hydroid gui allows user to
 
 ## Installation
 HYDROID_GUI gui is tested to work on python 2.7 through conda environment manager, it runs on Linux (ubuntu 16.04, 14.04 tested), Windows and MacOS
-### install hydroid through conda
+### Install hydroid through conda
 - conda install -c hydroid hydroid_gui -c conda-forge
 ### run 
 - HYDROID_GUI
