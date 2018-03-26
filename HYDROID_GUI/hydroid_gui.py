@@ -29,7 +29,7 @@ class HydroidHui(QtWidgets.QMainWindow):
     def __init__(self):
         super(HydroidHui, self).__init__()
         
-        self.states=['Locating peaks','Assigning peaks','Quantification','Results','Export']
+        self.states=['Locating peaks','Calling peaks','Quantification','Results','Export']
         self.currentState=0       
         self.workDir=unicode(QtCore.QDir.currentPath())
         
@@ -107,7 +107,7 @@ class HydroidHui(QtWidgets.QMainWindow):
         
         mainWidget.addWidget(plotAndControlsWidget)
         self.setCentralWidget(mainWidget)
-        self.setWindowTitle('HYDROID WIZARD')   
+        self.setWindowTitle('HYDROID GUI')   
         
         
         #self.assignConnections()
