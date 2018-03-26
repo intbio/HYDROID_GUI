@@ -12,7 +12,7 @@ Please, refer to the HYDROID package web-page [https://github.com/ncbi/HYDROID](
 The manual for HYDROID_GUI is provided as a video tutorial (see below).
 
 ## Video tutorial:
-[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/dJVoKrpH4f4/0.jpg)](http://www.youtube.com/watch?v=dJVoKrpH4f4)
+[![IMAGE ALT TEXT HERE](http://img.youtube.com/vi/yQGMtqKzzbA/0.jpg)](https://youtu.be/yQGMtqKzzbA)
 
 ## Features
 HYDROID_GUI allows user to 
